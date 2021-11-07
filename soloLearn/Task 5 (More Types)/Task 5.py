@@ -41,6 +41,7 @@ nums = {
     2: "two",
     3: "three"
 }
+
 print(1 in nums)
 print("three" in nums)
 print(4 not in nums)
@@ -55,6 +56,10 @@ pairs = {
 print(pairs.get("orange"))
 print(pairs.get(7))  # return None if doesn't find the key
 print(pairs.get(12345, "not in the dictionary"))  # return message which we write after the key if doesn't find a key
+
+# To get the list of dictionary keys
+list(pairs.keys())
+pairs.keys()
 
 # Tuples (кортежі)
 # Tuples are very similar to lists, except that they are immutable (they cannot be changed).
@@ -128,3 +133,28 @@ print("This is a sentence.".startswith("This"))  # return True
 # To change the case of a string, you can use lower and upper.
 print("ALL IN CAPTURE".lower())
 # The method split is the opposite of join turning a string with a certain separator into a list.
+
+
+# List functions
+# Often used in conditional statements, all and any take a list as an argument,
+# and return True if all or any (respectively) of their arguments evaluate to True (and False otherwise).
+# The function enumerate can be used to iterate through the values and indices of a list simultaneously.
+nums = [55, 44, 33, 22, 11]
+if all([i > 5 for i in nums]):
+    print("All larger than 5")
+
+if any([i % 2 for i in nums]):
+    print("At least one is even")
+
+for v in enumerate(nums):
+    print(v)
+    # return pair of index of element and value
+    # (0, 55)
+    # (1, 44)
+    # (2, 33)
+    # (3, 22)
+    # (4, 11)
+
+# Example how to format file output
+# round() function is used to Round a number to a given precision in decimal digits.  2.9887 -> 2.99
+print("{0} - {1}%".format(value1, round(value2, 2)))

@@ -1,4 +1,4 @@
-file = open("../test.txt")
+file = open("../test1.txt")
 file_line = file.readlines()
 print(file_line)
 
