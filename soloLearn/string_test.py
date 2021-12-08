@@ -1,5 +1,12 @@
 from itertools import product
 
+a = '123'
+b = "qwe"
+c = """Lorem ipsum dolor sit amet,
+consectetur adipiscing elit,
+sed do eiusmod tempor incididunt
+ut labore et dolore magna aliqua."""
+
 all_camel_string = 'This Is Test String'
 all_lower_string = 'this is test string'
 all_caps_string = 'THIS IS TEST STRING'
@@ -150,4 +157,4 @@ def example_join_str():
         print('.'.join(sort_by))
 
 
-count_all_test()
+print(a)
