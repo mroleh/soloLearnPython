@@ -14,7 +14,7 @@ string_array = "apple, banana, cherry"
 string_with_new_line = "Thank you for the music\nWelcome to the jungle"
 
 
-def capitalize():
+def capitalize_test():
     print(all_caps_string)
     print(all_caps_string.capitalize())
 
@@ -50,6 +50,11 @@ def count_test():
     print(long_digit_string)
     print(long_digit_string.count('1', 1))
     # It is possible to add  parameter start and end to count in the defined length
+
+
+def count_all_test():
+    print(long_digit_string)
+    print(len(long_digit_string))
 
 
 def encode_test():
@@ -145,4 +150,4 @@ def example_join_str():
         print('.'.join(sort_by))
 
 
-example_join_str()
+count_all_test()
