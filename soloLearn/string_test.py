@@ -1,3 +1,5 @@
+from itertools import product
+
 all_camel_string = 'This Is Test String'
 all_lower_string = 'this is test string'
 all_caps_string = 'THIS IS TEST STRING'
@@ -127,5 +129,20 @@ def replace_test():
     print(all_lower_string.replace("t", "1"))
 
 
-upper_test()
-swapcase_test()
+def example_string_to_list():
+    wrong_string = '["02504433783", "40972542059", "56714229629"]'
+    list_from_sting = wrong_string.strip('[]').replace('"', '').split(', ')
+    print(wrong_string)
+    print(list_from_sting)
+
+
+def example_join_str():
+    column_list = ['id', 'organization_name', 'contract_id', 'uploaded', 'run_date', 'status']
+    direction_list = ['asc', 'desc']
+    sorting_parameter_direction_combinations = list(product(column_list, direction_list))
+    print(sorting_parameter_direction_combinations)
+    for sort_by in sorting_parameter_direction_combinations:
+        print('.'.join(sort_by))
+
+
+example_join_str()
