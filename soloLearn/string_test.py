@@ -20,6 +20,17 @@ def capitalize():
 def casefold_test():
     print(all_caps_string)
     print(all_caps_string.casefold())
+    # This method is similar to the lower() method
+
+
+def upper_test():
+    print(all_lower_string)
+    print(all_lower_string.upper())
+
+
+def swapcase_test():
+    print(all_camel_string)
+    print(all_camel_string.swapcase())
 
 
 def lower_test():
@@ -114,3 +125,7 @@ def partition_test():
 def replace_test():
     print(all_lower_string)
     print(all_lower_string.replace("t", "1"))
+
+
+upper_test()
+swapcase_test()
