@@ -1,0 +1,643 @@
+﻿sep=,
+"ID","Title","Automation Type","Expected Result","Preconditions","Priority","References","Regression status","Repo_URL","Section","Section Depth","Section Description","Section Hierarchy","Steps","Steps","Steps (Additional Info)","Steps (Expected Result)","Steps (References)","Steps (Shared step ID)","Steps (Step)","Suite","Suite ID","T_ID"
+"C28793","Check that user can download analyzed claims for a single invoice","","1.Email with link to invoice should be emailed to the user associated with the authentication token
+2.202 response code should be received 
+3.Email template should look like this:
+
+Dear {first_name} {last_name},
+
+You are receiving this email because you requested the download for 'claims' for contract {contact_id}. The file is now ready to download. Please click here to download
+
+Organization: {org_name}
+Date Range: {date_range(should match PBM relationship period)}
+
+If you need help, Contact Support
+Sincerely, Truveris Support
+
+4.File will display under raw data
+5.200 response code should be received
+6.File should match db query
+","Endpoint#1: {TRUGUARD_API_BASE_URL}/invoice_files
+Endpoint#2: {TRUGUARD_API_BASE_URL}/invoice_files/download
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+5.Assumed you have access to udp-default
+
+
+**To find invoices
+
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'
+
+**db query to collect the aggregated data for a given contract + invoice
+
+select
+	bi.*, cgpb.*, cgd.*, c.*
+from 
+	claims_bi bi
+left outer join 
+	claims_guarantee_performance_bi cgpb
+on 
+	cgpb.claim_key = bi.claim_key
+join 
+	contracts c
+on 
+	bi.t_contract_id = c.contract_id 
+left outer join 
+	contract_group_description cgd
+on 
+	c.contract_id =cgd.contract_id
+left join 
+	afl_results ar
+on
+	ar.claim_key = bi.claim_key 
+where 
+	ar.contract_id  = {id} and ar.invoice_id = {id}
+","Medium","TI-456, TI-811, TI-1019","Always","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with 1 invoice id
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {invoice_id}
+  ],
+  ""organization_id"": {org_id}
+}
+
+2.Check server response
+3.Open received email
+4.Make GET request to the endpoint #2
+
+{
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {invoice_id}
+  ],
+5.Check server response
+6.Check the db
+
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-SINGLE"
+"C28794","Check that user can download analyzed claims for multiple invoices","","1.Email with link to invoice should be emailed to the user associated with the authentication token
+2.202 response code should be received 
+3.Email template should look like this:
+
+Dear {first_name} {last_name},
+
+You are receiving this email because you requested the download for 'claims' for contract {contact_id}. The file is now ready to download. Please click here to download
+
+Organization: {org_name}
+Date Range: {date_range(should match PBM relationship period)}
+
+If you need help, Contact Support
+Sincerely, Truveris Support
+
+4.1.You should be redirected to invoices page of ui service you set in activation_origin
+4.2.Analyzed claims should be downloaded in single file, in zip format with invoices you set in invoice_ids
+5.Filename_pattern should be Сontract-{contract_id}_invoice-{invoice_id}.csv
+6.Downloaded file should match db query
+","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+5.Assumed you have access to udp-default
+
+**To find invoices
+
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'
+
+**db query to collect the aggregated data for a given contract + invoice
+
+select
+	bi.*, cgpb.*, cgd.*, c.*
+from 
+	claims_bi bi
+left outer join 
+	claims_guarantee_performance_bi cgpb
+on 
+	cgpb.claim_key = bi.claim_key
+join 
+	contracts c
+on 
+	bi.t_contract_id = c.contract_id 
+left outer join 
+	contract_group_description cgd
+on 
+	c.contract_id =cgd.contract_id
+left join 
+	afl_results ar
+on
+	ar.claim_key = bi.claim_key 
+where 
+	ar.contract_id  = {id} and ar.invoice_id = {id}
+","Medium","TI-456, TI-811, TI-1019","Always","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with multiple Invoice IDs 
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {invoice_id_1}, {invoice_id_2}
+  ],
+  ""organization_id"": {org_id}
+}
+2.Check server response
+3.Open received email
+4.Click on link
+5.Unzip the file
+6.Check the db
+
+
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-MULTI"
+"C28849","Check that analyzed claim can't be downloaded when submit invalid invoice id","","1.Invoice should NOT be emailed to the user associated with the authentication token
+2.400 response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'","Low","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with invalid Invoice ID 
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {invalid_invoice_id}
+  ],
+  ""organization_id"": {org_id}
+}
+
+2.Check server response
+
+
+Test Data: 
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-INVALID-INVOICEID"
+"C28850","Check that analyzed Claim File can't be downloaded with text in the invoice id field","","2.400 BAD REQUEST response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'","Low","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with null Invoice ID
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    NULLID
+  ],
+  ""organization_id"": {org_id}
+}
+
+2.Check server response
+
+sample url
+https://ti456100-truguardapipy-dev.truveris.com/invoice_files
+
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-NULL-NAME"
+"C28860","Check that analyzed Claim File can't be downloaded without invoice id","","2.400 BAD REQUEST response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'","Low","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint without Invoice ID
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [],
+  ""organization_id"": {org_id}
+}
+
+2.Check server response
+
+sample url
+https://ti456100-truguardapipy-dev.truveris.com/invoice_files
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-BLANK-INVOICEID"
+"C52535","Check that analyzed claim can't be downloaded when submit invalid org id","","1.Invoice should NOT be emailed to the user associated with the authentication token
+2.404 response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'","Low","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with invalid Org ID 
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {invoice_id}
+  ],
+  ""organization_id"": {invalid_org_id}
+}
+
+2.Check server response
+
+
+Test Data: 
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-INVALID-ORGID"
+"C52536","Check that analyzed claim can't be downloaded when submit invalid contract id","","1.Invoice should NOT be emailed to the user associated with the authentication token
+2.404 response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'","Low","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with invalid Contract ID 
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {invalid_contract_id},
+  ""invoice_ids"": [
+    {invoice_id}
+  ],
+  ""organization_id"": {org_id}
+}
+
+2.Check server response
+
+Test Data: 
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-INVALID-CONTRACTID"
+"C52538","Check that analyzed claim can't be downloaded if invoice isn't executed","","1.Invoice should NOT be emailed to the user associated with the authentication token
+2.400 response code should be received with message ""Invoices should be in 'processed' status to download""","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have NOT been executed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'INIT'","Low","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with invoice that hasn't been executed 
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {not executed invoice_id}
+  ],
+  ""organization_id"": {org_id}
+}
+
+2.Check server response
+
+
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-NO-EXECUTED-INVOICE"
+"C52537","Check that analyzed claim can't be downloaded if invoice isn't processed","","1.Invoice should NOT be emailed to the user associated with the authentication token
+2.400 response code should be received with message ""Invoices should be in 'processed' status to download""","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+
+1.Assumed organization has invoices
+2.Assumed invoices have NOT been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'OUT_OF_SYNC'","Low","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with invoice that hasn't been processed 
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {not processed invoice_id}
+  ],
+  ""organization_id"": {org_id}
+}
+
+2.Check server response
+
+sample url
+https://ti456100-truguardapipy-dev.truveris.com/invoice_files
+
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-NO-PROCESSED-INVOICES"
+"C28851","Check invalid access methods","","2.405 response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+1.Assumed organization has invoices
+2.Assumed invoices have been processed
+3.Assumed you have an authorization token
+4.Assumed you have access to udp-default-metadata
+
+
+To find invoices
+select *
+from invoice_contract_executions ice
+where status = 'PROCESSED'","Medium","TI-456, TI-1019","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make request to the endpoint with valid Invoice ID but using invalid method (see test data)
+
+{
+  ""activation_origin"": {url of ui service},
+  ""contract_id"": {contract_id},
+  ""invoice_ids"": [
+    {invoice_id}
+  ],
+  ""organization_id"": {org_id}
+}
+
+2.Check the response
+
+ Test data:
+- PUT
+- GET
+- PATCH
+- DELETE
+
+ sample url
+https://ti456100-truguardapipy-dev.truveris.com/invoice_files
+","","","","","","","Master","S2","TG-API-INVOICES-DOWNLOAD-CLAIM-INVALID-METHODS"
+"C53078","Check that TG User with restrict_phi True should not be able to download analyzed claim","","1.403 response code should be received
+2.The following response message should be received: ""You are not allowed to perform this action""","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+1.Assumed there are test organizations with contracts
+2.Assumed that there are invoice with status PROCESSED
+3.Assumed there is TG User created with restrict_phi set to True
+4.Assumed there is authorization token of TG User
+5.Assumed accesses to {env}-udp-default-metadata,  {env}-payer-truguardapipy-default are set up
+
+--query to retrieve organization with invoices in status PROCESSED:
+select
+        case
+            when subquery.status = (
+                select (unnest(enum_range(
+                    'PROCESSED'::invoice_contract_executions_status_type,
+                    'PROCESSED'::invoice_contract_executions_status_type
+                ))))
+             then subquery.update_date
+                else null
+          end as ""completed"",
+        subquery.invoice_id as ""invoice_id"",
+        subquery.contract_id as ""contract_id"",
+        i.client_organization_id as ""organization_id"",
+        o.""name"" as ""organization_name"",
+        subquery.status
+    from invoices i
+        join (select distinct on (invoice_id, contract_id) *
+          from invoice_contract_executions
+          order by
+              invoice_id,
+              contract_id,
+              create_date desc nulls last
+         ) as subquery on subquery.invoice_id = i.id
+        left join contracts c on c.id = subquery.contract_id
+        left join organizations o on o.id = i.client_organization_id
+        left join organizations o2 on o2.id = c.pbm_organization_id
+        left join organization_types ot on ot.id = o.organization_type_id
+    where subquery.status = (select (unnest(enum_range(
+                                'PROCESSED'::invoice_contract_executions_status_type,
+                                'PROCESSED'::invoice_contract_executions_status_type
+                            ))))
+    order by subquery.invoice_id desc;
+
+--query to retrieve users with restrict_phi set to true and with role TG User:
+select
+        u.email
+from
+        ""user"" u
+where
+        u.restrict_phi = true
+        and u.role_id = 1;","Medium","TI-518","Always","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with valid payload
+2.Check response
+
+{
+    ""invoice_ids"": [
+        invoice_id
+    ],
+
+    ""organization_id"": {organization_id},
+    ""contract_id"": {contractid},
+    ""activation_origin"": ""{valid_activation_origin}""
+}
+
+valid_activation_origin:
+https://default-truguardui-dev.truveris.com
+https://truguardui-staging.truveris.com","","","","","","","Master","S2","TG-API-TGUSER-PHI-TRUE-ANLZD-CLAIM-DOWNLOAD"
+"C53079","Check that TG User with restrict_phi False should be able to download analyzed claim","","1.202 response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+1.Assumed there are test organizations with contracts
+2.Assumed that there are invoice with status PROCESSED
+3.Assumed there is TG User created with restrict_phi set to False
+4.Assumed there is authorization token of TG User
+5.Assumed accesses to {env}-udp-default-metadata,  {env}-payer-truguardapipy-default are set up
+
+--query to retrieve organization with invoices in status PROCESSED:
+select
+        case
+            when subquery.status = (
+                select (unnest(enum_range(
+                    'PROCESSED'::invoice_contract_executions_status_type,
+                    'PROCESSED'::invoice_contract_executions_status_type
+                ))))
+             then subquery.update_date
+                else null
+          end as ""completed"",
+        subquery.invoice_id as ""invoice_id"",
+        subquery.contract_id as ""contract_id"",
+        i.client_organization_id as ""organization_id"",
+        o.""name"" as ""organization_name"",
+        subquery.status
+    from invoices i
+        join (select distinct on (invoice_id, contract_id) *
+          from invoice_contract_executions
+          order by
+              invoice_id,
+              contract_id,
+              create_date desc nulls last
+         ) as subquery on subquery.invoice_id = i.id
+        left join contracts c on c.id = subquery.contract_id
+        left join organizations o on o.id = i.client_organization_id
+        left join organizations o2 on o2.id = c.pbm_organization_id
+        left join organization_types ot on ot.id = o.organization_type_id
+    where subquery.status = (select (unnest(enum_range(
+                                'PROCESSED'::invoice_contract_executions_status_type,
+                                'PROCESSED'::invoice_contract_executions_status_type
+                            ))))
+    order by subquery.invoice_id desc;
+
+--query to retrieve users with restrict_phi set to false and with role TG User:
+select
+        u.email
+from
+        ""user"" u
+where
+        u.restrict_phi = false
+        and u.role_id = 1;","Low","TI-518","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with valid payload
+
+{
+    ""invoice_ids"": [
+        invoice_id
+    ],
+    ""organization_id"": {organization_id},
+    ""contract_id"": {contractid},
+    ""activation_origin"": ""{valid_activation_origin}""
+}
+
+valid_activation_origin:
+https://default-truguardui-dev.truveris.com
+https://truguardui-staging.truveris.com","","","","","","","Master","S2","TG-API-TGUSER-PHI-FALSE-ANLZD-CLAIM-DOWNLOAD"
+"C53080","Check that TG Admin with restrict_phi True should not be able to download analyzed claim","","1.403 response code should be received
+2.The following response message should be received: ""You are not allowed to perform this action""","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+1.Assumed there are test organizations with contracts
+2.Assumed that there are invoice with status PROCESSED
+3.Assumed there is TG Admin created with restrict_phi set to True
+4.Assumed there is authorization token of TG Admin 
+5.Assumed accesses to {env}-udp-default-metadata,  {env}-payer-truguardapipy-default are set up
+
+--query to retrieve organization with invoices in status PROCESSED:
+select
+        case
+            when subquery.status = (
+                select (unnest(enum_range(
+                    'PROCESSED'::invoice_contract_executions_status_type,
+                    'PROCESSED'::invoice_contract_executions_status_type
+                ))))
+             then subquery.update_date
+                else null
+          end as ""completed"",
+        subquery.invoice_id as ""invoice_id"",
+        subquery.contract_id as ""contract_id"",
+        i.client_organization_id as ""organization_id"",
+        o.""name"" as ""organization_name"",
+        subquery.status
+    from invoices i
+        join (select distinct on (invoice_id, contract_id) *
+          from invoice_contract_executions
+          order by
+              invoice_id,
+              contract_id,
+              create_date desc nulls last
+         ) as subquery on subquery.invoice_id = i.id
+        left join contracts c on c.id = subquery.contract_id
+        left join organizations o on o.id = i.client_organization_id
+        left join organizations o2 on o2.id = c.pbm_organization_id
+        left join organization_types ot on ot.id = o.organization_type_id
+    where subquery.status = (select (unnest(enum_range(
+                                'PROCESSED'::invoice_contract_executions_status_type,
+                                'PROCESSED'::invoice_contract_executions_status_type
+                            ))))
+    order by subquery.invoice_id desc;
+
+--query to retrieve users with restrict_phi set to true and with role TG Admin:
+select
+        u.email
+from
+        ""user"" u
+where
+        u.restrict_phi = true
+        and u.role_id = 2;","Medium","TI-518","Always","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with valid payload
+2.Check response
+
+{
+    ""invoice_ids"": [
+        invoice_id
+    ],
+    ""organization_id"": {organization_id},
+    ""contract_id"": {contractid},
+    ""activation_origin"": ""{valid_activation_origin}""
+}
+
+valid_activation_origin:
+https://default-truguardui-dev.truveris.com
+https://truguardui-staging.truveris.com","","","","","","","Master","S2","TG-API-ADMIN-PHI-TRUE-ANLZD-CLAIM-DOWNLOAD"
+"C53081","Check that TG Admin with restrict_phi False should be able to download analyzed claim","","1.202 response code should be received","Endpoint: {TRUGUARD_API_BASE_URL}/invoice_files
+
+1.Assumed there are test organizations with contracts
+2.Assumed that there are invoice with status PROCESSED
+3.Assumed there is TG Admin created with restrict_phi set to False
+4.Assumed there is authorization token of TG Admin 
+5.Assumed accesses to {env}-udp-default-metadata,  {env}-payer-truguardapipy-default are set up
+
+--query to retrieve organization with invoices in status PROCESSED:
+select
+        case
+            when subquery.status = (
+                select (unnest(enum_range(
+                    'PROCESSED'::invoice_contract_executions_status_type,
+                    'PROCESSED'::invoice_contract_executions_status_type
+                ))))
+             then subquery.update_date
+                else null
+          end as ""completed"",
+        subquery.invoice_id as ""invoice_id"",
+        subquery.contract_id as ""contract_id"",
+        i.client_organization_id as ""organization_id"",
+        o.""name"" as ""organization_name"",
+        subquery.status
+    from invoices i
+        join (select distinct on (invoice_id, contract_id) *
+          from invoice_contract_executions
+          order by
+              invoice_id,
+              contract_id,
+              create_date desc nulls last
+         ) as subquery on subquery.invoice_id = i.id
+        left join contracts c on c.id = subquery.contract_id
+        left join organizations o on o.id = i.client_organization_id
+        left join organizations o2 on o2.id = c.pbm_organization_id
+        left join organization_types ot on ot.id = o.organization_type_id
+    where subquery.status = (select (unnest(enum_range(
+                                'PROCESSED'::invoice_contract_executions_status_type,
+                                'PROCESSED'::invoice_contract_executions_status_type
+                            ))))
+    order by subquery.invoice_id desc;
+
+--query to retrieve users with restrict_phi set to true and with role TG Admin :
+select
+        u.email
+from
+        ""user"" u
+where
+        u.restrict_phi = false
+        and u.role_id = 2;","Low","TI-518","One time regression","","POST Analyzed Claims","4","","TruGuard > V2.5 > TruGuard API > Invoices > POST Analyzed Claims","1.Make POST request to the endpoint with valid payload
+
+{
+    ""invoice_ids"": [
+        invoice_id
+    ],
+    ""organization_id"": {organization_id},
+    ""contract_id"": {contractid},
+    ""activation_origin"": ""{valid_activation_origin}""
+}
+
+valid_activation_origin:
+https://default-truguardui-dev.truveris.com
+https://truguardui-staging.truveris.com","","","","","","","Master","S2","TG-API-ADMIN-PHI-FALSE-ANLZD-CLAIM-DOWNLOAD"
