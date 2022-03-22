@@ -5,7 +5,7 @@ import zipfile
 
 # create zip with files
 def write_zip():
-    with zipfile.ZipFile('files.zip', 'w') as my_zip:
+    with zipfile.ZipFile('files1.zip', 'w') as my_zip:
         my_zip.write('test.txt')
         my_zip.write('test.png')
 
@@ -68,7 +68,7 @@ def download_zip_file():
     with zipfile.ZipFile('data.zip', 'r') as data_zip:
         print(data_zip.namelist())
         # data_zip.extractall()
-        # data_zip.extractall('test_project')
+        data_zip.extractall('test_project')
 
 
 if __name__ == '__main__':
