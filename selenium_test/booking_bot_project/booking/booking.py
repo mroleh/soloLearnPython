@@ -1,8 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-import constants as const
-from booking_filtration import BookingFiltration
+import selenium_test.booking_bot_project.booking.constants as const
+from selenium_test.booking_bot_project.booking.booking_filtration import BookingFiltration
 
 
 class Booking(webdriver.Chrome):
